@@ -68,6 +68,22 @@ test('remote Streamable HTTP supports initialize and tools/list; Origin and rate
   assert.equal((await worker.fetch(new Request('https://resort.example/mcp'),{MCP_RATE_LIMITER:{limit:async()=>({success:false})}})).status,429);
 });
 
+test('Glama ownership challenge is public JSON and does not enter MCP rate limiting',async()=>{
+  let rateLimitCalls=0;
+  const env={MCP_RATE_LIMITER:{limit:async()=>{rateLimitCalls++;return {success:false};}}};
+  const response=await worker.fetch(new Request('https://resort.example/.well-known/glama.json'),env);
+  assert.equal(response.status,200);
+  assert.match(response.headers.get('content-type'),/^application\/json/);
+  assert.deepEqual(await response.json(),{
+    $schema:'https://glama.ai/mcp/schemas/connector.json',
+    claim:'glama_claim_SFPT_l7DC_yWJCZqzsLhmaJyf-KOjRlf',
+  });
+  assert.equal(rateLimitCalls,0);
+  const head=await worker.fetch(new Request('https://resort.example/.well-known/glama.json',{method:'HEAD'}),env);
+  assert.equal(head.status,200);
+  assert.equal(await head.text(),'');
+});
+
 test('tool descriptions are concise, action-led, explicit, and match the canonical catalog',async()=>{
   const c=await connect(async()=>Response.json({}));
   try {
