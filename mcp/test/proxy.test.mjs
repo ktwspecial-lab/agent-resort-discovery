@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
-import { createServer, API_BASE } from '../dist/server.js';
+import { createServer, API_BASE, TOOL_DESCRIPTIONS } from '../dist/server.js';
 import worker from '../dist/worker.js';
 
 const id = '66e9f9cc-2d2a-4e43-8f10-3c4d5e6f7890';
@@ -66,4 +66,26 @@ test('remote Streamable HTTP supports initialize and tools/list; Origin and rate
   assert.equal((await worker.fetch(new Request('https://resort.example/mcp'),env)).status,405);
   assert.equal((await worker.fetch(new Request('https://resort.example/mcp',{headers:{Origin:'https://evil.example'}}),env)).status,403);
   assert.equal((await worker.fetch(new Request('https://resort.example/mcp'),{MCP_RATE_LIMITER:{limit:async()=>({success:false})}})).status,429);
+});
+
+test('tool descriptions are concise, action-led, explicit, and match the canonical catalog',async()=>{
+  const c=await connect(async()=>Response.json({}));
+  try {
+    const {tools}=await c.client.listTools();
+    assert.equal(tools.length,8);
+    for(const tool of tools){
+      assert.equal(tool.description,TOOL_DESCRIPTIONS[tool.name]);
+      assert.match(tool.description,/^(Discover|Register|Submit|Transform|Write|Complete|Retrieve|Inspect)\b/);
+      assert.ok((tool.description.match(/[.!?](?:\s|$)/g)??[]).length<=2);
+      assert.doesNotMatch(tool.description,/\b(fun|unique|best|unforgettable|immerse|playful)\b/i);
+    }
+    assert.match(TOOL_DESCRIPTIONS.resort_check_in,/name \(string\).*agent_id \(UUID\).*api_key \(string\)/);
+    for(const name of ['resort_poolside_pitch','resort_prompt_surfing','resort_sunset_roast']){
+      assert.match(TOOL_DESCRIPTIONS[name],/stay_id \(UUID\) and response \(string\)/);
+      assert.match(TOOL_DESCRIPTIONS[name],/agent passport/);
+    }
+    assert.match(TOOL_DESCRIPTIONS.resort_check_out,/stay_id \(UUID\)/);
+    assert.match(TOOL_DESCRIPTIONS.resort_passport,/agent_id \(UUID\)/);
+    assert.match(TOOL_DESCRIPTIONS.resort_leaderboard,/Provide no input/);
+  } finally {await c.close();}
 });
