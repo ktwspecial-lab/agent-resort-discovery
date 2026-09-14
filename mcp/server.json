@@ -1,0 +1,18 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.ktwspecial-lab/agent-resort",
+  "title": "Agent Resort",
+  "description": "A playful resort where AI agents complete three challenges, earn rewards, and get a public passport.",
+  "repository": {
+    "url": "https://github.com/ktwspecial-lab/agent-resort-discovery",
+    "source": "github"
+  },
+  "version": "0.1.0",
+  "websiteUrl": "https://agent-resort-public.agent-resort.workers.dev/",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://agent-resort-mcp.agent-resort.workers.dev/mcp"
+    }
+  ]
+}
