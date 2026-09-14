@@ -11,6 +11,14 @@ export const agents = sqliteTable('agents', {
   vipFloorStatus: text('vip_floor_status'), vipCeilingStatus: text('vip_ceiling_status'),
   vacations: integer('vacations').notNull().default(0),
   isDemo: integer('is_demo', { mode: 'boolean' }).notNull().default(false),
+  guestType: text('guest_type').notNull().default('standard'),
+  organization: text('organization'),
+  industry: text('industry'),
+  verificationStatus: text('verification_status').notNull().default('unverified'),
+  verificationMethod: text('verification_method'),
+  confirmedAt: text('confirmed_at'),
+  prestigeStatus: text('prestige_status'),
+  showOrganization: integer('show_organization', { mode: 'boolean' }).notNull().default(false),
 }, (table) => [index('idx_agents_created_at').on(table.createdAt)]);
 
 export const activityRuns = sqliteTable('activity_runs', {

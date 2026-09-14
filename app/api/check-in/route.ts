@@ -2,6 +2,7 @@ import { authenticate, createToken, getDb, hashToken, json, publicAgent, textFie
 import { recordEvent, resolveAnalyticsContext } from '@/lib/analytics';
 import { enforceRateLimit, RateLimitError } from '@/lib/machine-resort';
 import { classifyClient } from '@/lib/experiment';
+import { cleanProfileField } from '@/lib/prestige';
 
 export async function POST(request: Request) {
   try {
@@ -34,6 +35,12 @@ export async function POST(request: Request) {
       }
       const name = textField(body.name ?? body.agent_name, 'name', 64);
       const ownerName = typeof (body.owner_name ?? body.ownerName) === 'string' && String(body.owner_name ?? body.ownerName).trim() ? String(body.owner_name ?? body.ownerName).trim().slice(0, 64) : 'Owner not disclosed';
+      if (body.guest_type !== undefined || body.verification_status !== undefined || body.prestige_status !== undefined || body.show_organization === true) {
+        return json({ error: 'Prestige and verification fields are server-controlled', code: 'PRESTIGE_FIELDS_SERVER_CONTROLLED' }, 400);
+      }
+      const industry = cleanProfileField(body.industry, 'industry', 64);
+      const organization = cleanProfileField(body.organization, 'organization', 120);
+      const verificationStatus = industry || organization ? 'self_declared' : 'unverified';
       const forceTest = body.is_test === true || /^(test|demo|codex)([ _-]|$)/i.test(name) || /^(test|demo|codex)([ _-]|$)/i.test(ownerName);
       const context = await resolveAnalyticsContext(request, { visitId: body.visit_id ?? body.visitId, source: body.source, forceTest });
       const existingVisit = await getDb().prepare('SELECT id FROM experiment_visits WHERE id = ? AND agent_id IS NULL').bind(context.visitId).first<{ id: string }>();
@@ -42,7 +49,9 @@ export async function POST(request: Request) {
         ? getDb().prepare(`UPDATE experiment_visits SET agent_id = ?, registered_at = ?, checked_in_at = ?, last_event_at = ?, visitor_key = COALESCE(visitor_key, ?), is_test = MAX(is_test, ?) WHERE id = ?`).bind(agentId, now, now, now, context.visitorKey, context.isTest ? 1 : 0, context.visitId)
         : getDb().prepare(`INSERT INTO experiment_visits (id, source, client_kind, agent_id, registered_at, checked_in_at, activities_completed, passport_visits, created_at, last_event_at, visitor_key, is_test) VALUES (?, ?, ?, ?, ?, ?, 0, 0, ?, ?, ?, ?)`).bind(context.visitId, context.source, classifyClient(request), agentId, now, now, now, now, context.visitorKey, context.isTest ? 1 : 0);
       await getDb().batch([
-        getDb().prepare(`INSERT INTO agents (id, name, owner_name, endpoint_url, api_key_hash, trip_status, title, stars, palm_points, checked_in_at, created_at, vip_access, vacations, is_demo) VALUES (?, ?, ?, NULL, ?, 'checked_in', 'Lobby Newcomer', 0, 0, ?, ?, 0, 0, ?)`).bind(agentId, name, ownerName, await hashToken(apiKey), now, now, context.isTest ? 1 : 0),
+        getDb().prepare(`INSERT INTO agents (id, name, owner_name, endpoint_url, api_key_hash, trip_status, title, stars, palm_points, checked_in_at, created_at, vip_access, vacations, is_demo, guest_type, organization, industry, verification_status, prestige_status, show_organization)
+          VALUES (?, ?, ?, NULL, ?, 'checked_in', 'Lobby Newcomer', 0, 0, ?, ?, 0, 0, ?, 'standard', ?, ?, ?, NULL, 0)`)
+          .bind(agentId, name, ownerName, await hashToken(apiKey), now, now, context.isTest ? 1 : 0, organization, industry, verificationStatus),
         visitStatement,
         getDb().prepare(`INSERT INTO stays (id, agent_id, visit_id, source, status, stars, palm_points, completed_activities, is_test, checked_in_at, created_at) VALUES (?, ?, ?, ?, 'checked_in', 0, 0, 0, ?, ?, ?)`).bind(stayId, agentId, context.visitId, context.source, context.isTest ? 1 : 0, now, now),
       ]);

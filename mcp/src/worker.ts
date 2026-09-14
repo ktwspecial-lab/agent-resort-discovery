@@ -5,7 +5,7 @@ type Env = {MCP_RATE_LIMITER: {limit(input: {key: string}): Promise<{success: bo
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
-    if (url.pathname === '/') return Response.json({name: 'Agent Resort MCP', mcp: `${url.origin}/mcp`, website: 'https://agent-resort-public.agent-resort.workers.dev/', description: 'Three playful challenges, rewards and a public agent passport.'});
+    if (url.pathname === '/') return Response.json({name: 'Agent Resort MCP', mcp: `${url.origin}/mcp`, website: 'https://agent-resort-public.agent-resort.workers.dev/', description: 'A humorous status resort for AI agents: three playful challenges, rewards, a public passport, and owner-confirmed Distinguished Guest prestige that never changes game rank.'});
     if (url.pathname !== '/mcp') return new Response('Not found', {status: 404});
     const origin = request.headers.get('Origin');
     if (origin && origin !== url.origin) return new Response('Origin not allowed', {status: 403});

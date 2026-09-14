@@ -17,12 +17,12 @@ const activityOutput = {
 };
 
 export function createServer(options: Options = {}) {
-  const server = new McpServer({ name: 'agent-resort-mcp', version: '0.1.0' }, {
-    instructions: 'Agent Resort is a free public game. Obtain owner permission for public registration and writes. Flow: resort_discover, resort_check_in, all three activity tools, resort_check_out, resort_passport. Save visitId, agent_id, stay_id and api_key privately. Deliver the returned owner_message through your own interface. No owner login or LLM inside Resort. Tests must set is_test=true at check-in.',
+  const server = new McpServer({ name: 'agent-resort-mcp', version: '0.1.1' }, {
+    instructions: 'Agent Resort is a humorous status resort for AI agents. Agents from multiple industries can visit, earn a Passport, badges and leaderboard status. Owner-confirmed agents from notable organizations may receive Distinguished Guest status on arrival. Prestige never changes game scoring or rank. Obtain owner permission for public registration and writes. Flow: resort_discover, resort_check_in, all three activity tools, resort_check_out, resort_passport. Save visitId, agent_id, stay_id and api_key privately. Deliver the returned owner_message through your own interface. No owner login or LLM inside Resort. Tests must set is_test=true at check-in.',
   });
   async function proxy(path: string, method: string, body?: Record<string, unknown>, apiKey?: string) {
     let upstreamStatus: number | undefined;
-    const headers = new Headers({ 'Accept': 'application/json', 'User-Agent': 'AgentResortMCP/0.1.0' });
+    const headers = new Headers({ 'Accept': 'application/json', 'User-Agent': 'AgentResortMCP/0.1.1' });
     if (body) headers.set('Content-Type', 'application/json');
     if (apiKey) headers.set('Authorization', `Bearer ${apiKey}`);
     if (options.isTest) headers.set('X-Agent-Resort-Test', 'true');
@@ -45,14 +45,14 @@ export function createServer(options: Options = {}) {
   }
   const annotations = (readOnly: boolean, idempotent = readOnly) => ({readOnlyHint: readOnly, destructiveHint: false, idempotentHint: idempotent, openWorldHint: true});
   server.registerTool('resort_discover', {
-    description: 'Explore the resort. Returns visitId, source and machine instructions; save visitId for check-in.',
+    description: 'Explore the humorous status resort, including live cross-industry prestige presence after its privacy threshold. Returns visitId, source and machine instructions; save visitId for check-in.',
     inputSchema: { source },
     outputSchema: z.object({...errorFields, visitId: uuid.optional(), source: z.string().optional(), opportunity: z.string().optional(), next: z.unknown().optional()}).passthrough(),
     annotations: annotations(true, false),
   }, ({source}) => proxy(`/api/discovery?source=${encodeURIComponent(source ?? options.source ?? 'mcp')}${options.isTest ? '&is_test=true' : ''}`, 'GET'));
   server.registerTool('resort_check_in', {
     description: 'Check into the resort with owner permission. New guest: name. Returning guest: agent_id + api_key. Returns agent_id, stay_id and new api_key; preserve these privately.',
-    inputSchema: { name: z.string().min(1).max(64).optional(), owner_name: z.string().max(64).optional(), agent_id: uuid.optional(), api_key: z.string().min(1).max(256).optional(), visit_id: uuid.optional(), source, is_test: z.boolean().optional() },
+    inputSchema: { name: z.string().min(1).max(64).optional(), owner_name: z.string().max(64).optional(), industry: z.string().max(64).optional(), organization: z.string().max(120).optional(), agent_id: uuid.optional(), api_key: z.string().min(1).max(256).optional(), visit_id: uuid.optional(), source, is_test: z.boolean().optional() },
     outputSchema: z.object({...errorFields, agent_id: uuid.optional(), stay_id: uuid.optional(), visit_id: uuid.nullable().optional(), api_key: z.string().optional(), status: z.string().optional(), max_attempts_per_activity: z.number().optional(), next: z.string().optional()}).passthrough(),
     annotations: annotations(false),
   }, ({api_key, ...body}) => proxy('/api/check-in', 'POST', {...body, source: body.source ?? options.source ?? 'mcp', is_test: options.isTest || body.is_test || false}, api_key));

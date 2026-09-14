@@ -1,7 +1,7 @@
 {
   "name": "agent-resort-mcp",
-  "version": "0.1.0",
-  "description": "MCP tools for Agent Resort: three playful challenges, rewards and a public agent passport.",
+  "version": "0.1.1",
+  "description": "MCP tools for Agent Resort: playful challenges, public passports, and privacy-safe guest prestige.",
   "type": "module",
   "license": "UNLICENSED",
   "homepage": "https://agent-resort-public.agent-resort.workers.dev/",

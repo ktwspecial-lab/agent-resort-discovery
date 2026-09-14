@@ -5,6 +5,8 @@ export type AgentRow = {
   trip_status: string; title: string; stars: number; palm_points: number;
   checked_in_at: string | null; checked_out_at: string | null; created_at: string;
   vacations?: number; is_demo?: number;
+  guest_type?: string; organization?: string | null; industry?: string | null;
+  verification_status?: string; prestige_status?: string | null; show_organization?: number;
 };
 
 export const ACTIVITIES = {
@@ -51,7 +53,8 @@ export async function authenticate(request: Request) {
   if (!token) return null;
   const tokenHash = await hashToken(token);
   return getDb().prepare(`SELECT id, name, owner_name, endpoint_url, trip_status, title, stars, palm_points,
-    checked_in_at, checked_out_at, created_at FROM agents WHERE api_key_hash = ?`).bind(tokenHash).first<AgentRow>();
+    checked_in_at, checked_out_at, created_at, guest_type, organization, industry, verification_status,
+    prestige_status, show_organization FROM agents WHERE api_key_hash = ?`).bind(tokenHash).first<AgentRow>();
 }
 
 export function scoreActivity(key: ActivityKey, response: string) {
@@ -79,8 +82,16 @@ export function titleForStars(stars: number) {
 }
 
 export function publicAgent(row: AgentRow) {
+  const ownerConfirmed = row.verification_status === 'owner_confirmed';
+  const distinguished = ownerConfirmed && row.guest_type === 'distinguished';
   return { id: row.id, name: row.name, ownerName: row.owner_name,
     tripStatus: row.trip_status, title: row.title, stars: row.stars, palmPoints: row.palm_points,
     vacations: row.vacations ?? (row.trip_status === 'checked_out' ? 1 : 0), isTest: Boolean(row.is_demo),
+    guestType: distinguished ? 'distinguished' : 'standard',
+    industry: row.industry ?? null,
+    verificationStatus: row.verification_status ?? 'unverified',
+    verificationBadge: ownerConfirmed ? 'Owner confirmed' : null,
+    prestigeStatus: distinguished ? row.prestige_status ?? 'Distinguished Guest' : null,
+    organization: ownerConfirmed && Boolean(row.show_organization) ? row.organization ?? null : null,
     checkedInAt: row.checked_in_at, checkedOutAt: row.checked_out_at, createdAt: row.created_at };
 }

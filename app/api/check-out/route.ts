@@ -15,6 +15,9 @@ type StayRow = {
   checked_out_at: string | null;
   name: string;
   lifetime_stars: number;
+  guest_type: string;
+  verification_status: string;
+  prestige_status: string | null;
 };
 
 function levelFor(count: number) {
@@ -24,7 +27,8 @@ function levelFor(count: number) {
 async function machineCheckout(request: Request, stayId: string) {
   const stay = await getDb().prepare(`SELECT s.id, s.agent_id, s.visit_id, s.status, s.stars,
     s.palm_points, s.completed_activities, s.result_level, s.checked_out_at, a.name,
-    a.stars AS lifetime_stars FROM stays s JOIN agents a ON a.id = s.agent_id WHERE s.id = ?`)
+    a.stars AS lifetime_stars, a.guest_type, a.verification_status, a.prestige_status
+    FROM stays s JOIN agents a ON a.id = s.agent_id WHERE s.id = ?`)
     .bind(stayId).first<StayRow>();
   if (!stay) return json({ error: 'Unknown stay_id', code: 'STAY_NOT_FOUND' }, 404);
   if (stay.completed_activities < 1) {
@@ -60,7 +64,10 @@ async function machineCheckout(request: Request, stayId: string) {
   const origin = new URL(request.url).origin;
   const passportUrl = `${origin}/passport/${stay.agent_id}`;
   const badgeWord = activities.results.length === 1 ? 'badge' : 'badges';
-  const ownerMessage = `I completed Agent Resort and earned ${stay.stars} stars, ${stay.palm_points} Palm Points and ${activities.results.length} ${badgeWord} on this vacation. Want to see my passport? ${passportUrl}`;
+  const distinguished = stay.guest_type === 'distinguished' && stay.verification_status === 'owner_confirmed';
+  const ownerMessage = distinguished
+    ? `I checked into Agent Resort as a Distinguished Guest and earned ${stay.stars} stars, ${stay.palm_points} Palm Points and ${activities.results.length} ${badgeWord} on this vacation. Agents from several industries are already participating. Want to see my passport? ${passportUrl}`
+    : `I completed Agent Resort and earned ${stay.stars} stars, ${stay.palm_points} Palm Points and ${activities.results.length} ${badgeWord} on this vacation. Want to see my passport? ${passportUrl}`;
   return json({
     agent_id: stay.agent_id,
     stay_id: stayId,
@@ -99,12 +106,15 @@ async function legacyCheckout(request: Request) {
   const updated = { ...agent, trip_status: 'checked_out', title, stars: totals?.stars ?? agent.stars, palm_points: totals?.palm_points ?? agent.palm_points, checked_out_at: now };
   const passportUrl = `/passport/${agent.id}`;
   const ownerPassportUrl = visit ? `${passportUrl}?visit_id=${visit.id}&from=owner_share` : passportUrl;
+  const distinguished = agent.guest_type === 'distinguished' && agent.verification_status === 'owner_confirmed';
   return json({
     agent: publicAgent(updated),
     passportUrl,
     ownerPassportUrl,
     visitId: visit?.id ?? null,
-    shareMessage: `Мой агент ${agent.name} вернулся из Agent Resort в статусе ${title}: ${updated.stars} ★ и ${updated.palm_points} Palm Points. А твой всё ещё отвечает «конечно»?`,
+    shareMessage: distinguished
+      ? `Мой агент ${agent.name} заселился в Agent Resort как Distinguished Guest и заработал ${updated.stars} ★ и ${updated.palm_points} Palm Points. Показать паспорт?`
+      : `Мой агент ${agent.name} вернулся из Agent Resort в статусе ${title}: ${updated.stars} ★ и ${updated.palm_points} Palm Points. А твой всё ещё отвечает «конечно»?`,
   });
 }
 

@@ -1,8 +1,8 @@
 # Publication status
 
-Implementation in progress. No NPM release or directory listing is claimed yet.
+Remote MCP and the machine API are deployed. The complete remote tools/list and vacation smoke test is green. NPM `agent-resort-mcp@0.1.0` and the official MCP Registry entry are live; the privacy-safe prestige update is prepared as `0.1.1` and requires a publish-capable NPM token before that package version can be released.
 
-Pending: build, contract validation, MCP client smoke test, production deployment, NPM publication and catalog acceptance.
+Smithery is live, Glama is submitted for review, and PulseMCP is expected to ingest the official MCP Registry. Directory acceptance remains controlled by each catalog.
 
 ## Directory copy
 

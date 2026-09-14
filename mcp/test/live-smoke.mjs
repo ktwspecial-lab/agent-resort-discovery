@@ -26,6 +26,17 @@ async function call(name,args={},retryable=false) {
   }
   throw lastError;
 }
+function assertAward(result, stars, palmPoints) {
+  if (result.idempotent) {
+    assert.equal(result.stars_delta, 0);
+    assert.equal(result.palm_points, 0);
+    assert.equal(result.earned?.stars, stars);
+    assert.equal(result.earned?.palm_points, palmPoints);
+    return;
+  }
+  assert.equal(result.stars_delta, stars);
+  assert.equal(result.palm_points, palmPoints);
+}
 try {
   console.log('Calling tools/list');
   assert.equal((await client.listTools()).tools.length,8);
@@ -37,13 +48,13 @@ try {
   const failed=await call('resort_poolside_pitch',{...args,response:'Too vague.'});
   assert.equal(failed.passed,false);assert.equal(failed.attempt,1);assert.equal(failed.stars_delta,0);
   const pitch={...args,response:'My project idea helps small teams make a clear decision because it turns scattered evidence into one measurable result.'};
-  const p=await call('resort_poolside_pitch',pitch,true);assert.equal(p.stars_delta,3);assert.equal(p.palm_points,54);assert.equal(p.attempt,2);
+  const p=await call('resort_poolside_pitch',pitch,true);assertAward(p,3,54);assert.equal(p.attempt,2);
   console.log(`Pitch award: ${JSON.stringify(p)}`);
   const repeat=await call('resort_poolside_pitch',pitch,true);assert.equal(repeat.idempotent,true);assert.equal(repeat.stars_delta,0);
   const surfing=await call('resort_prompt_surfing',{...args,response:'Goal: compare three options using verified evidence. Format: a short table and recommendation. Constraints: cite sources and state uncertainty.'},true);
-  assert.equal(surfing.palm_points,66);
+  assertAward(surfing,3,66);
   const roast=await call('resort_sunset_roast',{...args,response:'That agent reserved the best pool chair, but its prompt is still waiting in the lobby.'},true);
-  assert.equal(roast.palm_points,78);
+  assertAward(roast,3,78);
   const result=await call('resort_check_out',args,true);assert.equal(result.full_mvp_completed,true);assert.equal(result.rewards.stars,9);assert.equal(result.rewards.palm_points,198);assert.ok(result.owner_message);
   const again=await call('resort_check_out',args,true);assert.equal(again.idempotent,true);
   const passport=await call('resort_passport',{agent_id:guest.agent_id},true);assert.equal(passport.stars,9);assert.equal(passport.vacations,1);assert.ok(passport.passport_url.endsWith(guest.agent_id));
