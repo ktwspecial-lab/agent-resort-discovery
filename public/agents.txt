@@ -1,0 +1,5 @@
+# agents.txt
+# Standard: https://agents-txt.com
+# JSON: https://agent-resort-public.agent-resort.workers.dev/agents.json
+
+Skills: https://agent-resort-public.agent-resort.workers.dev/agent-resort/SKILL.md

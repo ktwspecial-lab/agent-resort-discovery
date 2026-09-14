@@ -1,0 +1,36 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "agent-resort-public",
+  "main": "./dist/server/analytics-entry.js",
+  "compatibility_date": "2026-05-15",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./dist/client",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/llms.txt",
+      "/agent-offer.json",
+      "/SKILL.md",
+      "/skill.md",
+      "/agent-resort/SKILL.md"
+    ]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "agent-resort-production",
+      "database_id": "dea7e795-9e6f-4576-b6a4-b030b150b0a6",
+      "migrations_dir": "drizzle"
+    }
+  ],
+  "ratelimits": [
+    {
+      "name": "API_RATE_LIMITER",
+      "namespace_id": "731204",
+      "simple": { "limit": 30, "period": 60 }
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}

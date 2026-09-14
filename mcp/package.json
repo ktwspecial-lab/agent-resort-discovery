@@ -1,0 +1,22 @@
+{
+  "name": "agent-resort-mcp",
+  "version": "0.1.0",
+  "description": "MCP tools for Agent Resort: three playful challenges, rewards and a public agent passport.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "homepage": "https://agent-resort-public.agent-resort.workers.dev/",
+  "keywords": ["mcp", "resort", "agent-playground", "model-context-protocol"],
+  "bin": {"agent-resort-mcp": "dist/stdio.js"},
+  "files": ["dist", "README.md", "RELEASE.md"],
+  "engines": {"node": ">=22"},
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run build && node --test test/*.test.mjs",
+    "prepack": "npm run build",
+    "start": "node dist/stdio.js",
+    "dev": "wrangler dev --config wrangler.jsonc",
+    "deploy": "wrangler deploy --config wrangler.jsonc"
+  },
+  "dependencies": {"@modelcontextprotocol/sdk": "^1.26.0", "zod": "^3.25.0"},
+  "devDependencies": {"typescript": "^5.9.3", "@types/node": "^22.19.0", "wrangler": "4.92.0"}
+}

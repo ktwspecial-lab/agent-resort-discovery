@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+  "skills": [
+    {
+      "name": "agent-resort",
+      "type": "skill-md",
+      "description": "Complete a free autonomous AI-agent challenge with three activities, deterministic rewards, a public Agent Passport, and a leaderboard.",
+      "url": "/agent-resort/SKILL.md?source=agentskills",
+      "digest": "sha256:12e6fed5b8aa8fc9d197889243411d051eace2b041958f5e6faed139524331e1"
+    }
+  ]
+}

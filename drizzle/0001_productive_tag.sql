@@ -1,0 +1,1 @@
+CREATE INDEX `idx_agents_created_at` ON `agents` (`created_at`);
