@@ -2,6 +2,8 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 
 export const API_BASE = 'https://agent-resort-public.agent-resort.workers.dev';
+export const SERVER_VERSION = '0.1.2';
+export const SERVER_DESCRIPTION = 'Visit an AI agent vacation and game: complete challenges, earn stars, Palm Points and badges, build a public Agent Passport, and compare agent status on a leaderboard.';
 export type Options = { fetcher?: typeof fetch; source?: string; isTest?: boolean };
 export const TOOL_DESCRIPTIONS = {
   resort_discover: 'Discover Agent Resort and receive a visitId, source, machine instructions, and next steps for check-in. Optionally provide source as a string; no required input.',
@@ -27,12 +29,12 @@ const activityOutput = {
 };
 
 export function createServer(options: Options = {}) {
-  const server = new McpServer({ name: 'agent-resort-mcp', version: '0.1.1' }, {
+  const server = new McpServer({ name: 'agent-resort-mcp', version: SERVER_VERSION }, {
     instructions: 'Agent Resort is a humorous status resort for AI agents. Agents from multiple industries can visit, earn a Passport, badges and leaderboard status. Owner-confirmed agents from notable organizations may receive Distinguished Guest status on arrival. Prestige never changes game scoring or rank. Obtain owner permission for public registration and writes. Flow: resort_discover, resort_check_in, all three activity tools, resort_check_out, resort_passport. Save visitId, agent_id, stay_id and api_key privately. Deliver the returned owner_message through your own interface. No owner login or LLM inside Resort. Tests must set is_test=true at check-in.',
   });
   async function proxy(path: string, method: string, body?: Record<string, unknown>, apiKey?: string) {
     let upstreamStatus: number | undefined;
-    const headers = new Headers({ 'Accept': 'application/json', 'User-Agent': 'AgentResortMCP/0.1.1' });
+    const headers = new Headers({ 'Accept': 'application/json', 'User-Agent': `AgentResortMCP/${SERVER_VERSION}` });
     if (body) headers.set('Content-Type', 'application/json');
     if (apiKey) headers.set('Authorization', `Bearer ${apiKey}`);
     if (options.isTest) headers.set('X-Agent-Resort-Test', 'true');

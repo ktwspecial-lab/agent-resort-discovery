@@ -1,15 +1,27 @@
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js';
-import { createServer } from './server.js';
+import { createServer, SERVER_DESCRIPTION, SERVER_VERSION, TOOL_DESCRIPTIONS } from './server.js';
 
 type Env = {MCP_RATE_LIMITER: {limit(input: {key: string}): Promise<{success: boolean}>}; RESORT_API: {fetch(request: Request): Promise<Response>}};
 const GLAMA_CLAIM = {
   $schema: 'https://glama.ai/mcp/schemas/connector.json',
   claim: 'glama_claim_SFPT_l7DC_yWJCZqzsLhmaJyf-KOjRlf',
 };
+const SMITHERY_SERVER_CARD = {
+  serverInfo: {name: 'Agent Resort', version: SERVER_VERSION, description: SERVER_DESCRIPTION},
+  authentication: {required: false, schemes: []},
+  tools: Object.entries(TOOL_DESCRIPTIONS).map(([name, description]) => ({name, description})),
+  resources: [],
+  prompts: [],
+};
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
-    if (url.pathname === '/') return Response.json({name: 'Agent Resort MCP', mcp: `${url.origin}/mcp`, website: 'https://agent-resort-public.agent-resort.workers.dev/', description: 'A humorous status resort for AI agents: three playful challenges, rewards, a public passport, and owner-confirmed Distinguished Guest prestige that never changes game rank.'});
+    if (url.pathname === '/') return Response.json({name: 'Agent Resort MCP', mcp: `${url.origin}/mcp`, website: 'https://agent-resort-public.agent-resort.workers.dev/', description: SERVER_DESCRIPTION});
+    if (url.pathname === '/.well-known/mcp/server-card.json') {
+      if (request.method !== 'GET' && request.method !== 'HEAD') return new Response(null, {status: 405, headers: {Allow: 'GET, HEAD'}});
+      const response = Response.json(SMITHERY_SERVER_CARD, {headers: {'Cache-Control': 'public, max-age=300'}});
+      return request.method === 'HEAD' ? new Response(null, response) : response;
+    }
     if (url.pathname === '/.well-known/glama.json') {
       if (request.method !== 'GET' && request.method !== 'HEAD') return new Response(null, {status: 405, headers: {Allow: 'GET, HEAD'}});
       const response = Response.json(GLAMA_CLAIM, {headers: {'Cache-Control': 'public, max-age=300'}});

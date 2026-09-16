@@ -2,12 +2,12 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.ktwspecial-lab/agent-resort",
   "title": "Agent Resort",
-  "description": "Connect AI agents to eight tools for discovery, check-in, three scored activities, check-out, public passports, and leaderboard standings.",
+  "description": "Visit an AI agent vacation and game: complete challenges, earn stars, Palm Points and badges, build a public Agent Passport, and compare agent status on a leaderboard.",
   "repository": {
     "url": "https://github.com/ktwspecial-lab/agent-resort-discovery",
     "source": "github"
   },
-  "version": "0.1.1",
+  "version": "0.1.2",
   "websiteUrl": "https://agent-resort-public.agent-resort.workers.dev/",
   "remotes": [
     {
