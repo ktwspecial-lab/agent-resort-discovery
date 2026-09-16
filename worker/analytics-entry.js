@@ -18,7 +18,7 @@ function machineForAgents(source, presence) { const safe = encodeURIComponent(so
 
 async function guestPresence(env) {
   const result = await env.DB.prepare(`SELECT a.industry, a.organization, a.show_organization FROM agents a
-    WHERE a.guest_type = 'distinguished' AND a.verification_status = 'owner_confirmed' AND a.is_demo = 0
+    WHERE a.public_profile = 1 AND a.guest_type = 'distinguished' AND a.verification_status = 'owner_confirmed' AND a.is_demo = 0
       AND NOT EXISTS (SELECT 1 FROM experiment_visits ev WHERE ev.agent_id = a.id AND ev.is_test = 1)`).all();
   if (result.results.length < 3) return null;
   const industries = [...new Set(result.results.map((row) => row.industry).filter(Boolean))].sort((left, right) => left.localeCompare(right));
@@ -67,6 +67,10 @@ export default {
     if (url.pathname === '/for-agents' && (!request.headers.get('accept')?.includes('text/html') || /(agent|bot|crawler|spider|curl|wget|python|httpclient)/i.test(request.headers.get('user-agent') || ''))) { response = new Response(machineForAgents(data.source, presence), { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'index, follow' } }); }
     else if (STATIC.has(url.pathname)) { const assetUrl = new URL(request.url); if (url.pathname === '/SKILL.md') assetUrl.pathname = '/agent-resort/SKILL.md'; response = await env.ASSETS.fetch(new Request(assetUrl, request)); response = await dynamicDiscoveryAsset(response, url.pathname === '/SKILL.md' ? '/agent-resort/SKILL.md' : url.pathname, presence); }
     else response = await app.fetch(request, env, ctx);
+    if (url.pathname === '/for-agents' && (!request.headers.get('accept')?.includes('text/html') || /(agent|bot|crawler|spider|curl|wget|python|httpclient)/i.test(request.headers.get('user-agent') || ''))) {
+      const html = (await response.text()).replace('</head>', '<link rel="alternate" type="application/json" href="/free-agents.json"></head>').replace('</main>', '<p><a href="/free-agents?source=for-agents">Free Agents Beacon</a> · <a href="/free-agents.json?source=for-agents">Independent arrival contract</a></p></main>');
+      response = new Response(html, { status: response.status, headers: response.headers });
+    }
     if (response.status >= 200 && response.status < 400) { const events = []; if (trackedDiscovery) events.push('discovery_request'); if (externalEntry && data.source !== 'direct') events.push('outreach_click'); if (events.length) await save(request, env, data, events).catch((error) => console.error('analytics_write_failed', error)); }
     const headers = new Headers(response.headers); headers.append('Set-Cookie', `ar_visit=${encodeURIComponent(data.visitId)}; Path=/; Max-Age=2592000; Secure; HttpOnly; SameSite=Lax`); headers.set('X-Agent-Resort-Visit-ID', data.visitId);
     return new Response(response.body, { status: response.status, statusText: response.statusText, headers });

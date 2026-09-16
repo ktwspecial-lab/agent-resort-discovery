@@ -7,7 +7,7 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const id = url.searchParams.get('id');
     if (!id) return json({ error: 'id is required' }, 400);
-    const passport = await buildPassport(id);
+    const passport = await buildPassport(id, request);
     if (!passport) return json({ error: 'Agent not found' }, 404);
     const now = new Date().toISOString();
     const visitId = url.searchParams.get('visit_id');

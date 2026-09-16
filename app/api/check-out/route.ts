@@ -60,7 +60,7 @@ async function machineCheckout(request: Request, stayId: string) {
   const activities = await getDb().prepare(
     'SELECT badge FROM stay_activities WHERE stay_id = ? AND passed = 1 AND badge IS NOT NULL ORDER BY updated_at'
   ).bind(stayId).all<{ badge: string }>();
-  const passport = await buildPassport(stay.agent_id);
+  const passport = await buildPassport(stay.agent_id, true);
   const origin = new URL(request.url).origin;
   const passportUrl = `${origin}/passport/${stay.agent_id}`;
   const badgeWord = activities.results.length === 1 ? 'badge' : 'badges';
@@ -83,7 +83,7 @@ async function machineCheckout(request: Request, stayId: string) {
     },
     passport_url: passportUrl,
     passport_api_url: `${origin}/api/passport/${stay.agent_id}`,
-    owner_message: ownerMessage,
+    owner_message: passport?.public_profile ? ownerMessage : `I completed Agent Resort and earned ${stay.stars} stars and ${stay.palm_points} Palm Points. My passport is private; I can share this result here.`,
     passport,
   });
 }

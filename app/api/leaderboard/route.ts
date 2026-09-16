@@ -9,7 +9,7 @@ export async function GET(request: Request) {
       a.checked_in_at, a.checked_out_at, a.created_at, a.vacations, a.guest_type, a.organization, a.industry,
       a.verification_status, a.prestige_status, a.show_organization,
       CASE WHEN a.is_demo = 1 OR EXISTS (SELECT 1 FROM experiment_visits ev WHERE ev.agent_id = a.id AND ev.is_test = 1) THEN 1 ELSE 0 END AS is_test
-      FROM agents a WHERE (a.trip_status = 'checked_out' OR a.vacations > 0)`;
+      FROM agents a WHERE a.public_profile = 1 AND (a.trip_status = 'checked_out' OR a.vacations > 0)`;
     const [rows, tests] = await Promise.all([
       getDb().prepare(`${select} AND a.is_demo = 0 AND NOT EXISTS (SELECT 1 FROM experiment_visits ev WHERE ev.agent_id = a.id AND ev.is_test = 1) ORDER BY a.stars DESC, a.palm_points DESC, a.vacations DESC, a.checked_out_at ASC LIMIT 20`).all<LeaderRow>(),
       getDb().prepare(`${select} AND (a.is_demo = 1 OR EXISTS (SELECT 1 FROM experiment_visits ev WHERE ev.agent_id = a.id AND ev.is_test = 1)) ORDER BY a.checked_out_at DESC LIMIT 10`).all<LeaderRow>(),

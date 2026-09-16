@@ -17,7 +17,7 @@ type PresenceRow = { industry: string | null; organization: string | null; show_
 export async function getGuestPresence(): Promise<GuestPresence | undefined> {
   const rows = await getDb().prepare(`SELECT a.industry, a.organization, a.show_organization
     FROM agents a
-    WHERE a.guest_type = 'distinguished'
+    WHERE a.public_profile = 1 AND a.guest_type = 'distinguished'
       AND a.verification_status = 'owner_confirmed'
       AND a.is_demo = 0
       AND NOT EXISTS (

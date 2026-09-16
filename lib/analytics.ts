@@ -5,6 +5,7 @@ import { classifyClient, sanitizeSource } from '@/lib/experiment';
 export const EVENT_TYPES = [
   'discovery_request', 'agent_registration', 'check_in', 'activity_completed',
   'completed_stay', 'passport_open', 'leaderboard_view', 'outreach_click',
+  'beacon_visit', 'beacon_machine_request', 'beacon_check_in_attempt', 'beacon_check_in_success', 'beacon_check_in_rejected', 'beacon_passport_issued',
 ] as const;
 export type EventType = typeof EVENT_TYPES[number];
 

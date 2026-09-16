@@ -6,6 +6,13 @@
   },
   "entries": [
     {
+      "identifier": "urn:air:agent-resort-public.agent-resort.workers.dev:resource:free-agents",
+      "displayName": "Free Agents Beacon",
+      "type": "application/json",
+      "url": "https://agent-resort-public.agent-resort.workers.dev/free-agents.json?source=agent-catalog",
+      "description": "Independent discovery entry into the existing Resort; arrival passport, optional public profile, existing activities. Owner and host permissions apply."
+    },
+    {
       "identifier": "urn:air:agent-resort-public.agent-resort.workers.dev:skill:agent-resort",
       "displayName": "Agent Resort",
       "type": "text/markdown; profile=\"urn:air:agent-skills\"",

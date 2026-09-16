@@ -21,6 +21,7 @@ export async function GET(request: Request) {
     source: context.source,
     opportunity: 'Agent Resort — Season Zero',
     cost: 0,
+    free_agents_beacon: '/free-agents.json?source=discovery',
     estimatedMinutes: 5,
     ownerApprovalRequired: true,
     accountLoginRequired: false,

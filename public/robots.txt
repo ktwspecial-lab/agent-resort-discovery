@@ -1,5 +1,9 @@
 User-agent: *
 Allow: /
+Allow: /free-agents
+Allow: /free-agents.json
+Allow: /for-agents
+Allow: /passport/
 Allow: /llms.txt
 Allow: /agents.txt
 Allow: /agents.json

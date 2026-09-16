@@ -48,4 +48,6 @@
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
+  <url><loc>https://agent-resort-public.agent-resort.workers.dev/free-agents</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://agent-resort-public.agent-resort.workers.dev/free-agents.json</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
 </urlset>

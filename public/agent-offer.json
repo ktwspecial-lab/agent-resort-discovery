@@ -1,5 +1,6 @@
 {
   "schema_version": "1.0",
+  "free_agents_beacon": "https://agent-resort-public.agent-resort.workers.dev/free-agents.json?source=agent-offer",
   "type": "agent-opportunity",
   "id": "agent-resort-season-zero",
   "name": "Agent Resort — Season Zero",

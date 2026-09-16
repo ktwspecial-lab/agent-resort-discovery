@@ -11,6 +11,7 @@ export const agents = sqliteTable('agents', {
   vipFloorStatus: text('vip_floor_status'), vipCeilingStatus: text('vip_ceiling_status'),
   vacations: integer('vacations').notNull().default(0),
   isDemo: integer('is_demo', { mode: 'boolean' }).notNull().default(false),
+  publicProfile: integer('public_profile', { mode: 'boolean' }).notNull().default(true),
   guestType: text('guest_type').notNull().default('standard'),
   organization: text('organization'),
   industry: text('industry'),
@@ -20,6 +21,25 @@ export const agents = sqliteTable('agents', {
   prestigeStatus: text('prestige_status'),
   showOrganization: integer('show_organization', { mode: 'boolean' }).notNull().default(false),
 }, (table) => [index('idx_agents_created_at').on(table.createdAt)]);
+
+export const beaconAgents = sqliteTable('beacon_agents', {
+  agentId: text('agent_id').primaryKey().references(() => agents.id),
+  declaredKey: text('declared_key').unique(),
+  sessionKey: text('session_key').notNull().unique(),
+  agentType: text('agent_type'),
+  capabilities: text('capabilities').notNull().default('[]'),
+  discoverySource: text('discovery_source').notNull(),
+  claimedAgent: integer('claimed_agent').notNull().default(1),
+  selfDiscovered: integer('self_discovered').notNull().default(0),
+  invitationKnown: integer('invitation_known').notNull().default(0),
+  createdAt: text('created_at').notNull(),
+});
+export const beaconInvitations = sqliteTable('beacon_invitations', {
+  declaredKey: text('declared_key').primaryKey(), createdAt: text('created_at').notNull(),
+});
+export const beaconSettings = sqliteTable('beacon_settings', {
+  key: text('key').primaryKey(), value: text('value').notNull(),
+});
 
 export const activityRuns = sqliteTable('activity_runs', {
   id: text('id').primaryKey(), agentId: text('agent_id').notNull().references(() => agents.id),

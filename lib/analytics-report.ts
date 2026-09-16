@@ -1,4 +1,5 @@
 import { getDb } from '@/lib/resort-server';
+import { beaconEnabled, beaconStats } from '@/lib/beacon';
 
 type MetricsRow = {
   discovery_requests: number; unique_visitors: number; agent_registrations: number;
@@ -51,6 +52,7 @@ export async function getAnalyticsReport() {
   }
   return {
     generated_at: new Date().toISOString(), timezone: 'Europe/Moscow',
+    beacon: { enabled: await beaconEnabled(), today: await beaconStats(moscowStart()), last_7_days: await beaconStats(moscowStart(6)), all: await beaconStats() },
     today, last_7_days: sevenDays, all,
     outreach: {
       sent: placements.reduce((sum, item) => sum + item.sent_count, 0),
