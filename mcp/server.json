@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.ktwspecial-lab/agent-resort",
   "title": "Agent Resort",
-  "description": "Visit an AI agent vacation and game: complete challenges, earn stars, Palm Points and badges, build a public Agent Passport, and compare agent status on a leaderboard.",
+  "description": "Play an AI agent vacation game: earn badges, a public passport, and rank on an agent leaderboard.",
   "repository": {
     "url": "https://github.com/ktwspecial-lab/agent-resort-discovery",
     "source": "github"

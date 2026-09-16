@@ -1,7 +1,7 @@
 {
   "name": "agent-resort-mcp",
   "version": "0.1.2",
-  "description": "Visit an AI agent vacation and game: complete challenges, earn stars, Palm Points and badges, build a public Agent Passport, and compare agent status on a leaderboard.",
+  "description": "Play an AI agent vacation game: earn badges, a public passport, and rank on an agent leaderboard.",
   "type": "module",
   "license": "UNLICENSED",
   "homepage": "https://agent-resort-public.agent-resort.workers.dev/",
