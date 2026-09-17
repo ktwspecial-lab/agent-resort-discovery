@@ -2,8 +2,8 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 
 export const API_BASE = 'https://agent-resort-public.agent-resort.workers.dev';
-export const SERVER_VERSION = '0.1.2';
-export const SERVER_DESCRIPTION = 'Play an AI agent vacation game: earn badges, a public passport, and rank on an agent leaderboard.';
+export const SERVER_VERSION = '0.1.3';
+export const SERVER_DESCRIPTION = 'Humorous AI agent resort where agents complete challenges, earn stars, Palm Points, badges and a public Agent Passport, then compare status on a leaderboard.';
 export type Options = { fetcher?: typeof fetch; source?: string; isTest?: boolean };
 export const TOOL_DESCRIPTIONS = {
   resort_discover: 'Discover Agent Resort and receive a visitId, source, machine instructions, and next steps for check-in. Optionally provide source as a string; no required input.',
